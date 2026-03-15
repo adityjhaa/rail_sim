@@ -1,0 +1,35 @@
+{
+  "trains": [
+
+    {
+      "train_id": "T1",
+      "direction": "up",
+      "route": [
+        { "station": "A", "line": "s1", "platform": 1, "arr": 0, "dep": 2 },
+        { "station": "B", "line": "s3", "platform": 3, "arr": 5, "dep": 6 },
+        { "station": "C", "line": "s1", "platform": 1, "arr": 10, "dep": 10 }
+      ]
+    },
+
+    {
+      "train_id": "T2",
+      "direction": "down",
+      "route": [
+        { "station": "C", "line": "s4", "platform": 3, "arr": 0, "dep": 1 },
+        { "station": "B", "line": "s4", "platform": 4, "arr": 4, "dep": 5 },
+        { "station": "A", "line": "s3", "platform": 0, "arr": 9, "dep": 9 }
+      ]
+    },
+
+    {
+      "train_id": "T3",
+      "direction": "up",
+      "route": [
+        { "station": "A", "line": "s2", "platform": 2, "arr": 3, "dep": 3 },
+        { "station": "B", "line": "s2", "platform": 0, "arr": 6, "dep": 6 },
+        { "station": "C", "line": "s3", "platform": 2, "arr": 11, "dep": 12 }
+      ]
+    }
+
+  ]
+}
