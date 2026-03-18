@@ -14,7 +14,7 @@ schedule = load_schedule("input/schedule.json")
 
 layout = Layout(network)
 
-simulation = Simulation(network, schedule)
+simulation = Simulation(network, schedule, layout)
 
 renderer = Renderer(network, layout)
 

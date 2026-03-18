@@ -26,6 +26,8 @@ class Renderer:
 
         pygame.init()
 
+        pygame.display.set_caption("Railway Simulator")
+
         self.screen = pygame.display.set_mode((1400, 800))
 
         self.font = pygame.font.SysFont(None, 20)
