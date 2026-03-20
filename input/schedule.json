@@ -6,7 +6,7 @@
       "direction": "up",
       "route": [
         { "station": "A", "line": "s1", "platform": 1, "arr": 0, "dep": 2 },
-        { "station": "B", "line": "s3", "platform": 3, "arr": 5, "dep": 6 },
+        { "station": "B", "line": "s2", "platform": 3, "arr": 5, "dep": 6 },
         { "station": "C", "line": "s1", "platform": 1, "arr": 10, "dep": 10 }
       ]
     },
@@ -26,8 +26,8 @@
       "direction": "up",
       "route": [
         { "station": "A", "line": "s2", "platform": 2, "arr": 3, "dep": 3 },
-        { "station": "B", "line": "s2", "platform": 0, "arr": 6, "dep": 6 },
-        { "station": "C", "line": "s3", "platform": 2, "arr": 11, "dep": 12 }
+        { "station": "B", "line": "s1", "platform": 0, "arr": 6, "dep": 6 },
+        { "station": "C", "line": "s2", "platform": 0, "arr": 11, "dep": 12 }
       ]
     }
 

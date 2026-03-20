@@ -1,19 +1,25 @@
-class Segment:
+from core.pathing import build_path
 
+
+class Segment:
     def __init__(self, start_stop, end_stop, network, layout):
 
         self.start_station = start_stop.station
         self.end_station = end_stop.station
 
-        self.departure = start_stop.departure
-        self.arrival = end_stop.arrival
-
         self.start_track = start_stop.track
         self.end_track = end_stop.track
 
+        self.departure = start_stop.departure
+        self.arrival = end_stop.arrival
+
         self.block = self.find_block(network)
 
-        from core.pathing import build_path
+        if self.block is None:
+            raise Exception(
+                f"No valid block for {self.start_station}:{self.start_track} "
+                f"→ {self.end_station}:{self.end_track}"
+            )
 
         self.path = build_path(
             layout,
@@ -21,8 +27,11 @@ class Segment:
             self.start_station,
             self.start_track,
             self.end_station,
-            self.end_track,
+            self.end_track
         )
+
+    def duration(self):
+        return self.arrival - self.departure
 
     def find_block(self, network):
 
@@ -30,17 +39,26 @@ class Segment:
 
             stations = {block.station_a, block.station_b}
 
-            if {self.start_station, self.end_station} == stations:
+            if {self.start_station, self.end_station} != stations:
+                continue
+
+            has_start = False
+            has_end = False
+
+            for st, tr in block.connections:
+                if st == self.start_station and tr == self.start_track:
+                    has_start = True
+
+                if st == self.end_station and tr == self.end_track:
+                    has_end = True
+
+            if has_start and has_end:
                 return block
 
         return None
 
-    def duration(self):
-        return self.arrival - self.departure
-
 
 class SimTrain:
-
     def __init__(self, train, network, layout):
 
         self.id = train.id
@@ -61,18 +79,12 @@ class SimTrain:
         self.finished = False
 
     def get_current_segment(self):
-
         if self.current_segment_index >= len(self.segments):
             return None
-
         return self.segments[self.current_segment_index]
 
 
 class Simulation:
-    """
-    Main simulation engine.
-    """
-
     def __init__(self, network, schedule, layout):
 
         self.network = network
@@ -88,10 +100,8 @@ class Simulation:
             self.trains.append(SimTrain(train, network, layout))
 
     def update(self, dt):
-        """
-        Advance simulation time.
-        """
 
+        # real-time seconds
         self.sim_time += dt
 
         self.spawn_trains()
@@ -119,28 +129,23 @@ class Simulation:
             train.finished = True
             return
 
-        # train hasn't started this segment yet
         if self.sim_time < segment.departure:
             return
 
         duration = segment.duration()
 
-        # avoid division by zero
         if duration <= 0:
             progress = 1.0
         else:
             progress = (self.sim_time - segment.departure) / duration
 
-        # clamp progress
         progress = max(0.0, min(1.0, progress))
 
-        # 🚆 move along path instead of straight line
         x, y = segment.path.get_position(progress)
 
         train.x = x
         train.y = y
 
-        # segment completed → move to next
         if progress >= 1.0:
 
             train.current_segment_index += 1
@@ -148,19 +153,5 @@ class Simulation:
             if train.current_segment_index >= len(train.segments):
                 train.finished = True
 
-    def get_station_position(self, station_name):
-        """
-        Placeholder.
-        The renderer or layout module will provide real coordinates.
-        """
-
-        index = list(self.network.stations.keys()).index(station_name)
-
-        x = 200 + index * 400
-        y = 300
-
-        return (x, y)
-
     def get_active_trains(self):
-
         return [t for t in self.active_trains if not t.finished]
