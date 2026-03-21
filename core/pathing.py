@@ -57,11 +57,11 @@ def build_path(layout, block, start_station, start_track, end_station, end_track
     exit = get_connection_point(layout, end_station, end_track, block)
 
     points = [
-        (sx, sy),   # start track
-        entry,      # switch entry
-        (bx, by),   # block
-        exit,       # switch exit
-        (ex, ey)    # end track
+        (sx, sy),  # start track
+        entry,  # switch entry
+        (bx, by),  # block
+        exit,  # switch exit
+        (ex, ey),  # end track
     ]
 
     return PathSegment(points)

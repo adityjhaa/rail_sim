@@ -110,5 +110,4 @@ def load_network(json_file):
             # register connection from this station
             block.add_connection(station_name, track_id)
 
-
     return network

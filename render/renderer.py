@@ -107,9 +107,13 @@ class Renderer:
 
             sx, sy = self.camera.world_to_screen(train.x, train.y)
 
+            train_id = self.font.render(f"{train.id}", True, (255, 255, 255))
             rect = pygame.Rect(sx - 8, sy - 5, 16, 10)
+            id_rect = train_id.get_rect()
+            id_rect.center = (sx - 6, sy - 10)
 
             pygame.draw.rect(self.screen, (255, 80, 80), rect)
+            self.screen.blit(train_id, id_rect)
 
     # -------------------------------------------------
 
@@ -143,6 +147,15 @@ class Renderer:
 
                 pygame.draw.line(self.screen, color, start, end, 3)
 
+    def draw_time(self, time):
+        time_font = pygame.font.SysFont("Arial", 30)
+        time_surface = time_font.render(f"Time: {time}", True, (0, 255, 0))
+        time_rect = time_surface.get_rect()
+
+        time_rect.center = (1300, 20)
+
+        self.screen.blit(time_surface, time_rect)
+
     def draw(self, simulation):
 
         self.screen.fill((30, 30, 30))
@@ -153,9 +166,10 @@ class Renderer:
 
         self.draw_blocks()
 
-
         trains = simulation.get_active_trains()
 
         self.draw_trains(trains)
+
+        self.draw_time(int(simulation.sim_time))
 
         pygame.display.flip()

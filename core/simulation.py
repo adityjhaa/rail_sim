@@ -27,7 +27,7 @@ class Segment:
             self.start_station,
             self.start_track,
             self.end_station,
-            self.end_track
+            self.end_track,
         )
 
     def duration(self):
