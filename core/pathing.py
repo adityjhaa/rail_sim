@@ -1,8 +1,24 @@
+import math
+
+
 class PathSegment:
     def __init__(self, points):
+
         self.points = points
+        self.lengths = []
+        self.total_length = 0
+
+        for i in range(len(points) - 1):
+            x1, y1 = points[i]
+            x2, y2 = points[i + 1]
+
+            length = math.hypot(x2 - x1, y2 - y1)
+
+            self.lengths.append(length)
+            self.total_length += length
 
     def get_position(self, t):
+
         if not self.points:
             return (0, 0)
 
@@ -11,32 +27,42 @@ class PathSegment:
 
         t = max(0.0, min(1.0, t))
 
-        total_segments = len(self.points) - 1
-        seg_float = t * total_segments
-        seg_idx = int(seg_float)
+        target_dist = t * self.total_length
+        current_dist = 0
 
-        if seg_idx >= total_segments:
-            return self.points[-1]
+        for i in range(len(self.lengths)):
 
-        local_t = seg_float - seg_idx
+            seg_len = self.lengths[i]
 
-        x1, y1 = self.points[seg_idx]
-        x2, y2 = self.points[seg_idx + 1]
+            if current_dist + seg_len >= target_dist:
 
-        x = x1 + (x2 - x1) * local_t
-        y = y1 + (y2 - y1) * local_t
+                local = (target_dist - current_dist) / seg_len if seg_len > 0 else 0
 
-        return (x, y)
+                x1, y1 = self.points[i]
+                x2, y2 = self.points[i + 1]
+
+                x = x1 + (x2 - x1) * local
+                y = y1 + (y2 - y1) * local
+
+                return (x, y)
+
+            current_dist += seg_len
+
+        return self.points[-1]
 
 
 def get_connection_point(layout, station, track, block):
+
     tx, ty = layout.track_positions[station][track]
 
     key = tuple(sorted([block.station_a, block.station_b])) + (block.branch_id,)
     bx, by = layout.block_positions[key]
 
-    # midpoint toward block (matches renderer direction)
-    cx = tx + (bx - tx) * 0.5
+    if layout.station_positions[station] < bx:
+        cx = tx + abs(bx - tx) * 0.5
+    else:
+        cx = tx - abs(bx - tx) * 0.5
+
     cy = ty
 
     return (cx, cy)
@@ -56,12 +82,11 @@ def build_path(layout, block, start_station, start_track, end_station, end_track
     entry = get_connection_point(layout, start_station, start_track, block)
     exit = get_connection_point(layout, end_station, end_track, block)
 
-    points = [
-        (sx, sy),  # start track
-        entry,  # switch entry
-        (bx, by),  # block
-        exit,  # switch exit
-        (ex, ey),  # end track
-    ]
+    moving_right = ex > sx
+
+    if moving_right:
+        points = [(sx, sy), entry, (bx - 60, by), (bx + 60, by), exit, (ex, ey)]
+    else:
+        points = [(sx, sy), entry, (bx + 60, by), (bx - 60, by), exit, (ex, ey)]
 
     return PathSegment(points)

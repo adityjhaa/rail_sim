@@ -37,15 +37,17 @@ class Segment:
 
         for block in network.get_blocks():
 
-            stations = {block.station_a, block.station_b}
-
-            if {self.start_station, self.end_station} != stations:
+            if {block.station_a, block.station_b} != {
+                self.start_station,
+                self.end_station,
+            }:
                 continue
 
             has_start = False
             has_end = False
 
             for st, tr in block.connections:
+
                 if st == self.start_station and tr == self.start_track:
                     has_start = True
 
@@ -101,7 +103,6 @@ class Simulation:
 
     def update(self, dt):
 
-        # real-time seconds
         self.sim_time += dt
 
         self.spawn_trains()
@@ -116,9 +117,7 @@ class Simulation:
             if train in self.active_trains:
                 continue
 
-            first_segment = train.segments[0]
-
-            if self.sim_time >= first_segment.departure:
+            if self.sim_time >= train.segments[0].departure:
                 self.active_trains.append(train)
 
     def update_train(self, train):
@@ -134,11 +133,9 @@ class Simulation:
 
         duration = segment.duration()
 
-        if duration <= 0:
-            progress = 1.0
-        else:
-            progress = (self.sim_time - segment.departure) / duration
-
+        progress = (
+            1.0 if duration <= 0 else (self.sim_time - segment.departure) / duration
+        )
         progress = max(0.0, min(1.0, progress))
 
         x, y = segment.path.get_position(progress)
@@ -147,7 +144,6 @@ class Simulation:
         train.y = y
 
         if progress >= 1.0:
-
             train.current_segment_index += 1
 
             if train.current_segment_index >= len(train.segments):
