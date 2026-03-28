@@ -74,11 +74,14 @@ class SimTrain:
             )
 
         self.current_segment_index = 0
-
-        self.x = 0
-        self.y = 0
-
         self.finished = False
+
+        if self.segments:
+            self.x, self.y, self.angle = self.segments[0].path.get_position(0)
+        else:
+            self.x = 0
+            self.y = 0
+            self.angle = 0
 
     def get_current_segment(self):
         if self.current_segment_index >= len(self.segments):
@@ -94,31 +97,23 @@ class Simulation:
         self.layout = layout
 
         self.sim_time = 0
+        self.is_paused = False
 
         self.trains = []
-        self.active_trains = []
 
         for train in schedule.get_trains():
             self.trains.append(SimTrain(train, network, layout))
 
     def update(self, dt):
+        if self.is_paused:
+            return
 
         self.sim_time += dt
 
-        self.spawn_trains()
-
-        for train in self.active_trains:
+        for train in self.trains:
             self.update_train(train)
 
-    def spawn_trains(self):
 
-        for train in self.trains:
-
-            if train in self.active_trains:
-                continue
-
-            if self.sim_time >= train.segments[0].departure:
-                self.active_trains.append(train)
 
     def update_train(self, train):
 
@@ -138,10 +133,11 @@ class Simulation:
         )
         progress = max(0.0, min(1.0, progress))
 
-        x, y = segment.path.get_position(progress)
+        x, y, angle = segment.path.get_position(progress)
 
         train.x = x
         train.y = y
+        train.angle = angle
 
         if progress >= 1.0:
             train.current_segment_index += 1
@@ -150,4 +146,4 @@ class Simulation:
                 train.finished = True
 
     def get_active_trains(self):
-        return [t for t in self.active_trains if not t.finished]
+        return self.trains
