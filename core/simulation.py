@@ -13,7 +13,7 @@ class Segment:
         self.departure = start_stop.departure
         self.arrival = end_stop.arrival
 
-        self.block = self.find_block(network)
+        self.block = self.find_block(network, layout)
 
         if self.block is None:
             raise Exception(
@@ -33,7 +33,8 @@ class Segment:
     def duration(self):
         return self.arrival - self.departure
 
-    def find_block(self, network):
+    def find_block(self, network, layout):
+        valid_blocks = []
 
         for block in network.get_blocks():
 
@@ -55,16 +56,31 @@ class Segment:
                     has_end = True
 
             if has_start and has_end:
-                return block
+                valid_blocks.append(block)
 
-        return None
+        if not valid_blocks:
+            return None
+
+        sx = layout.station_positions[self.start_station]
+        ex = layout.station_positions[self.end_station]
+        moving_right = ex > sx
+
+        def get_block_y(b):
+            key = tuple(sorted([b.station_a, b.station_b])) + (b.branch_id,)
+            return layout.block_positions[key][1]
+
+        valid_blocks.sort(key=get_block_y, reverse=not moving_right)
+
+        return valid_blocks[0]
 
 
 class SimTrain:
     def __init__(self, train, network, layout):
 
         self.id = train.id
-        self.direction = train.direction
+
+        self.spawn_time = train.stops[0].arrival - 60
+        self.despawn_time = train.stops[-1].departure + 300
 
         self.segments = []
 
@@ -97,6 +113,9 @@ class Simulation:
         self.layout = layout
 
         self.sim_time = 0
+
+        self.total_duration = (schedule.end_time - schedule.start_time).total_seconds()
+        self.is_finished = False
         self.is_paused = False
 
         self.trains = []
@@ -105,15 +124,17 @@ class Simulation:
             self.trains.append(SimTrain(train, network, layout))
 
     def update(self, dt):
-        if self.is_paused:
+        if self.is_paused or self.is_finished:
             return
 
-        self.sim_time += dt
+        self.sim_time += dt * 60.0
+
+        if self.sim_time >= self.total_duration:
+            self.is_finished = True
+            return
 
         for train in self.trains:
             self.update_train(train)
-
-
 
     def update_train(self, train):
 
@@ -146,4 +167,6 @@ class Simulation:
                 train.finished = True
 
     def get_active_trains(self):
-        return self.trains
+        return [
+            t for t in self.trains if t.spawn_time <= self.sim_time <= t.despawn_time
+        ]

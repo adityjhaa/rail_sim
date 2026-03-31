@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 
 class Stop:
@@ -25,9 +26,8 @@ class Train:
     Represents a train and its route.
     """
 
-    def __init__(self, train_id, direction):
+    def __init__(self, train_id):
         self.id = train_id
-        self.direction = direction
         self.stops = []
 
     def add_stop(self, stop):
@@ -54,6 +54,8 @@ class Schedule:
 
     def __init__(self):
         self.trains = []
+        self.start_time = None
+        self.end_time = None
 
     def add_train(self, train):
         self.trains.append(train)
@@ -101,18 +103,32 @@ def load_schedule(json_file):
 
     schedule = Schedule()
 
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    sim_start = datetime.strptime(data["simulation"]["start_time"], date_format)
+    sim_end = datetime.strptime(data["simulation"]["end_time"], date_format)
+
+    schedule.start_time = sim_start
+    schedule.end_time = sim_end
+
     for train_data in data["trains"]:
 
-        train = Train(train_data["train_id"], train_data["direction"])
+        train = Train(train_data["train_id"])
 
         for stop_data in train_data["route"]:
+
+            arr_dt = datetime.strptime(stop_data["arr"], date_format)
+            dep_dt = datetime.strptime(stop_data["dep"], date_format)
+
+            arr_sec = (arr_dt - sim_start).total_seconds()
+            dep_sec = (dep_dt - sim_start).total_seconds()
 
             stop = Stop(
                 station=stop_data["station"],
                 track=stop_data["line"],
                 platform=stop_data["platform"],
-                arrival=stop_data["arr"],
-                departure=stop_data["dep"],
+                arrival=arr_sec,
+                departure=dep_sec,
             )
 
             train.add_stop(stop)

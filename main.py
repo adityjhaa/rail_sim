@@ -1,3 +1,7 @@
+import os
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
 import pygame
 
 from core.network import load_network
@@ -9,7 +13,7 @@ from render.renderer import Renderer
 
 
 network = load_network("input/network.json")
- 
+
 schedule = load_schedule("input/schedule.json")
 
 layout = Layout(network)
@@ -60,5 +64,8 @@ while running:
                 renderer.camera.zoom_at(-0.5, 700, 400)
 
     simulation.update(dt)
+
+    if getattr(simulation, "is_finished", False):
+        running = False
 
     renderer.draw(simulation)
