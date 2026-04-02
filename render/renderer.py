@@ -1,4 +1,5 @@
 import pygame
+import pygame._sdl2 as sdl2
 import math
 from core.pathing import cubic_bezier
 
@@ -45,12 +46,20 @@ class Renderer:
 
         pygame.display.set_caption("Railway Simulator")
 
-        self.screen = pygame.display.set_mode((1400, 800))
+        self.screen_info = pygame.display.Info()
+
+        self.screen = pygame.display.set_mode((self.screen_info.current_w, self.screen_info.current_h - 60), pygame.RESIZABLE)
+
+        window = sdl2.Window.from_display_module()
+        window.maximize()
+
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
 
         self.font = pygame.font.SysFont(None, 20)
 
         self.camera = Camera()
-        self.btn_rect = pygame.Rect(650, 740, 100, 40)
+        self.btn_rect = pygame.Rect(self.width // 2 - 50, self.height - 60, 100, 40)
 
     # -------------------------------------------------
 
@@ -278,7 +287,7 @@ class Renderer:
 
         time_surface = time_font.render(time_str, True, (0, 255, 0))
         time_rect = time_surface.get_rect()
-        time_rect.center = (700, 30)
+        time_rect.center = (self.width // 2, 30)
         self.screen.blit(time_surface, time_rect)
 
         is_paused = getattr(simulation, "is_paused", False)
@@ -297,8 +306,8 @@ class Renderer:
         ):
             b = self.layout.bounds
 
-            half_w = 700 / self.camera.zoom
-            half_h = 400 / self.camera.zoom
+            half_w = (self.width / 2) / self.camera.zoom
+            half_h = (self.height / 2) / self.camera.zoom
 
             min_cam_x = b["min_x"] - half_w
             max_cam_x = b["max_x"] - half_w
