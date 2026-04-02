@@ -113,6 +113,7 @@ class Simulation:
         self.layout = layout
 
         self.sim_time = 0
+        self.speed = 1.0
 
         self.total_duration = (schedule.end_time - schedule.start_time).total_seconds()
         self.is_finished = False
@@ -127,7 +128,7 @@ class Simulation:
         if self.is_paused or self.is_finished:
             return
 
-        self.sim_time += dt * 60.0
+        self.sim_time += dt * 60.0 * self.speed
 
         if self.sim_time >= self.total_duration:
             self.is_finished = True

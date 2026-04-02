@@ -1,5 +1,4 @@
 import pygame
-import pygame._sdl2 as sdl2
 import math
 from core.pathing import cubic_bezier
 
@@ -37,21 +36,11 @@ class Camera:
 
 class Renderer:
 
-    def __init__(self, network, layout):
+    def __init__(self, network, layout, screen):
 
         self.network = network
         self.layout = layout
-
-        pygame.init()
-
-        pygame.display.set_caption("Railway Simulator")
-
-        self.screen_info = pygame.display.Info()
-
-        self.screen = pygame.display.set_mode((self.screen_info.current_w, self.screen_info.current_h - 60), pygame.RESIZABLE)
-
-        window = sdl2.Window.from_display_module()
-        window.maximize()
+        self.screen = screen
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
@@ -60,6 +49,22 @@ class Renderer:
 
         self.camera = Camera()
         self.btn_rect = pygame.Rect(self.width // 2 - 50, self.height - 60, 100, 40)
+        self.exit_btn_rect = pygame.Rect(self.width // 2 + 70, self.height - 60, 80, 40)
+
+        # Speed controls to the left of the play/pause button
+        gap_to_play = 20
+        btn_w, btn_h = 40, 40
+        speed_w = 140
+        gap = 5
+
+        start_x = self.btn_rect.left - gap_to_play - btn_w
+        self.speed_plus_rect = pygame.Rect(start_x, self.height - 60, btn_w, btn_h)
+
+        start_x -= speed_w + gap
+        self.speed_text_rect = pygame.Rect(start_x, self.height - 60, speed_w, btn_h)
+
+        start_x -= btn_w + gap
+        self.speed_minus_rect = pygame.Rect(start_x, self.height - 60, btn_w, btn_h)
 
     # -------------------------------------------------
 
@@ -279,6 +284,7 @@ class Renderer:
         from datetime import timedelta
 
         time_font = pygame.font.SysFont("Arial", 30)
+        symbol_font = pygame.font.SysFont("Arial", 42, bold=True)
 
         current_time_dt = simulation.schedule.start_time + timedelta(
             seconds=simulation.sim_time
@@ -291,7 +297,7 @@ class Renderer:
         self.screen.blit(time_surface, time_rect)
 
         is_paused = getattr(simulation, "is_paused", False)
-        color = (100, 200, 100) if is_paused else (200, 100, 100)
+        color = (100, 200, 100) if is_paused else (200, 200, 100)
         text = "PLAY" if is_paused else "PAUSE"
 
         pygame.draw.rect(self.screen, color, self.btn_rect, border_radius=5)
@@ -299,6 +305,45 @@ class Renderer:
         msg = time_font.render(text, True, (255, 255, 255))
         msg_rect = msg.get_rect(center=self.btn_rect.center)
         self.screen.blit(msg, msg_rect)
+
+        # Speed Dial
+        speed = getattr(simulation, "speed", 1.0)
+
+        btn_color = (100, 120, 140)
+        txt_bg_color = (60, 70, 80)
+
+        # Minus button
+        pygame.draw.rect(self.screen, btn_color, self.speed_minus_rect, border_radius=5)
+        minus_msg = symbol_font.render("-", True, (255, 255, 255))
+        minus_rect = minus_msg.get_rect(
+            center=(self.speed_minus_rect.centerx, self.speed_minus_rect.centery - 2)
+        )
+        self.screen.blit(minus_msg, minus_rect)
+
+        # Text block
+        pygame.draw.rect(
+            self.screen, txt_bg_color, self.speed_text_rect, border_radius=5
+        )
+        text_str = f"Speed: {speed:g}"
+        speed_msg = time_font.render(text_str, True, (255, 255, 255))
+        speed_rect = speed_msg.get_rect(center=self.speed_text_rect.center)
+        self.screen.blit(speed_msg, speed_rect)
+
+        # Plus button
+        pygame.draw.rect(self.screen, btn_color, self.speed_plus_rect, border_radius=5)
+        plus_msg = symbol_font.render("+", True, (255, 255, 255))
+        plus_rect = plus_msg.get_rect(
+            center=(self.speed_plus_rect.centerx, self.speed_plus_rect.centery - 2)
+        )
+        self.screen.blit(plus_msg, plus_rect)
+
+        # Exit Button
+        pygame.draw.rect(
+            self.screen, (200, 50, 50), self.exit_btn_rect, border_radius=5
+        )
+        exit_msg = time_font.render("EXIT", True, (255, 255, 255))
+        exit_msg_rect = exit_msg.get_rect(center=self.exit_btn_rect.center)
+        self.screen.blit(exit_msg, exit_msg_rect)
 
     def clamp_camera(self):
         if hasattr(self.layout, "bounds") and self.layout.bounds["min_x"] != float(
@@ -340,5 +385,3 @@ class Renderer:
         self.draw_trains(trains)
 
         self.draw_ui(simulation)
-
-        pygame.display.flip()
