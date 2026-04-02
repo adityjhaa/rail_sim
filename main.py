@@ -73,8 +73,12 @@ title_font = pygame.font.SysFont("Arial", 50, bold=True)
 label_font = pygame.font.SysFont("Arial", 30)
 
 btn_w, btn_h = 400, 60
-network_browse_rect = pygame.Rect(width // 2 - btn_w // 2, height // 2 - 120, btn_w, btn_h)
-schedule_browse_rect = pygame.Rect(width // 2 - btn_w // 2, height // 2 - 10, btn_w, btn_h)
+network_browse_rect = pygame.Rect(
+    width // 2 - btn_w // 2, height // 2 - 120, btn_w, btn_h
+)
+schedule_browse_rect = pygame.Rect(
+    width // 2 - btn_w // 2, height // 2 - 10, btn_w, btn_h
+)
 
 run_w, run_h = 240, 70
 run_btn_rect = pygame.Rect(width // 2 - run_w // 2, height // 2 + 130, run_w, run_h)
@@ -83,7 +87,7 @@ run_btn_rect = pygame.Rect(width // 2 - run_w // 2, height // 2 + 130, run_w, ru
 def draw_home_screen():
     # Fill background with dark blueprint color
     screen.fill((25, 25, 30))
-    
+
     # Subtle blueprint grid overlay
     for x in range(0, width, 60):
         pygame.draw.line(screen, (35, 35, 40), (x, 0), (x, height), 1)
@@ -92,7 +96,9 @@ def draw_home_screen():
 
     # Main Title with drop shadow
     title_shadow = title_font.render("RAIL SIMULATOR", True, (10, 10, 15))
-    screen.blit(title_shadow, title_shadow.get_rect(center=(width // 2 + 4, height // 2 - 266)))
+    screen.blit(
+        title_shadow, title_shadow.get_rect(center=(width // 2 + 4, height // 2 - 266))
+    )
     title_surf = title_font.render("RAIL SIMULATOR", True, (200, 220, 255))
     screen.blit(title_surf, title_surf.get_rect(center=(width // 2, height // 2 - 270)))
 
@@ -107,7 +113,12 @@ def draw_home_screen():
 
     # Network UI
     net_lbl = label_font.render("Network File (.json)", True, (180, 200, 220))
-    screen.blit(net_lbl, net_lbl.get_rect(left=network_browse_rect.left + 10, bottom=network_browse_rect.top - 10))
+    screen.blit(
+        net_lbl,
+        net_lbl.get_rect(
+            left=network_browse_rect.left + 10, bottom=network_browse_rect.top - 10
+        ),
+    )
 
     pygame.draw.rect(screen, btn_color, network_browse_rect, border_radius=10)
     net_btn_text = "Browse..." if not network_path else os.path.basename(network_path)
@@ -115,11 +126,18 @@ def draw_home_screen():
     if net_text_surf.get_width() > btn_w - 40:
         net_btn_text = net_btn_text[:25] + "..."
         net_text_surf = label_font.render(net_btn_text, True, text_color)
-    screen.blit(net_text_surf, net_text_surf.get_rect(center=network_browse_rect.center))
+    screen.blit(
+        net_text_surf, net_text_surf.get_rect(center=network_browse_rect.center)
+    )
 
     # Schedule UI
     sch_lbl = label_font.render("Schedule File (.json)", True, (180, 200, 220))
-    screen.blit(sch_lbl, sch_lbl.get_rect(left=schedule_browse_rect.left + 10, bottom=schedule_browse_rect.top - 10))
+    screen.blit(
+        sch_lbl,
+        sch_lbl.get_rect(
+            left=schedule_browse_rect.left + 10, bottom=schedule_browse_rect.top - 10
+        ),
+    )
 
     pygame.draw.rect(screen, btn_color, schedule_browse_rect, border_radius=10)
     sch_btn_text = "Browse..." if not schedule_path else os.path.basename(schedule_path)
@@ -127,12 +145,14 @@ def draw_home_screen():
     if sch_text_surf.get_width() > btn_w - 40:
         sch_btn_text = sch_btn_text[:25] + "..."
         sch_text_surf = label_font.render(sch_btn_text, True, text_color)
-    screen.blit(sch_text_surf, sch_text_surf.get_rect(center=schedule_browse_rect.center))
+    screen.blit(
+        sch_text_surf, sch_text_surf.get_rect(center=schedule_browse_rect.center)
+    )
 
     # Run Button
     can_run = bool(network_path and schedule_path)
     run_color = (50, 150, 255) if can_run else (60, 65, 75)
-    
+
     if can_run:
         glow_rect = run_btn_rect.inflate(10, 10)
         pygame.draw.rect(screen, (20, 100, 200), glow_rect, border_radius=25)
