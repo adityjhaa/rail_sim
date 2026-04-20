@@ -13,6 +13,8 @@ class Segment:
         self.departure = start_stop.departure
         self.arrival = end_stop.arrival
 
+        self.next_block = start_stop.next_block
+
         self.block = self.find_block(network, layout)
 
         if self.block is None:
@@ -34,44 +36,34 @@ class Segment:
         return self.arrival - self.departure
 
     def find_block(self, network, layout):
+        if not self.next_block:
+            return None
+
+        expected_index = int(self.next_block.split('_')[-1])
+
         valid_blocks = []
 
         for block in network.get_blocks():
 
-            if {block.station_a, block.station_b} != {
+            if {block.station_a, block.station_b} == {
                 self.start_station,
                 self.end_station,
             }:
-                continue
-
-            has_start = False
-            has_end = False
-
-            for st, tr in block.connections:
-
-                if st == self.start_station and tr == self.start_track:
-                    has_start = True
-
-                if st == self.end_station and tr == self.end_track:
-                    has_end = True
-
-            if has_start and has_end:
                 valid_blocks.append(block)
 
         if not valid_blocks:
             return None
 
-        sx = layout.station_positions[self.start_station]
-        ex = layout.station_positions[self.end_station]
-        moving_right = ex > sx
-
         def get_block_y(b):
             key = tuple(sorted([b.station_a, b.station_b])) + (b.branch_id,)
             return layout.block_positions[key][1]
 
-        valid_blocks.sort(key=get_block_y, reverse=not moving_right)
+        valid_blocks.sort(key=get_block_y)
 
-        return valid_blocks[0]
+        if expected_index < len(valid_blocks):
+            return valid_blocks[expected_index]
+
+        return None
 
 
 class SimTrain:

@@ -7,18 +7,19 @@ class Stop:
     Represents a single stop in a train route.
     """
 
-    def __init__(self, station, track, platform, arrival, departure):
+    def __init__(self, station, track, platform, arrival, departure, next_block=None):
         self.station = station
         self.track = track
         self.platform = platform
         self.arrival = arrival
         self.departure = departure
+        self.next_block = next_block
 
     def is_pass_through(self):
         return self.arrival == self.departure
 
     def __repr__(self):
-        return f"Stop({self.station}, {self.track}, arr={self.arrival}, dep={self.departure})"
+        return f"Stop({self.station}, {self.track}, arr={self.arrival}, dep={self.departure}, next_block={self.next_block})"
 
 
 class Train:
@@ -129,6 +130,7 @@ def load_schedule(json_file):
                 platform=stop_data["platform"],
                 arrival=arr_sec,
                 departure=dep_sec,
+                next_block=stop_data.get("next_block")
             )
 
             train.add_stop(stop)
