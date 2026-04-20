@@ -168,7 +168,7 @@ class Renderer:
 
             # draw label
             label = self.render_scaled_text(
-                f"BSN_{block.branch_id}", (255, 255, 255)
+                f"BSN_{block.branch_id + 1}", (255, 255, 255)
             )
 
             self.screen.blit(

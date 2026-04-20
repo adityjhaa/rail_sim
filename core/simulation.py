@@ -39,7 +39,7 @@ class Segment:
         if not self.next_block:
             return None
 
-        expected_index = int(self.next_block.split('_')[-1])
+        expected_suffix = int(self.next_block.split('_')[-1])
 
         valid_blocks = []
 
@@ -60,7 +60,21 @@ class Segment:
 
         valid_blocks.sort(key=get_block_y)
 
-        if expected_index < len(valid_blocks):
+        num_blocks = len(valid_blocks)
+        expected_index = 0
+
+        if expected_suffix == 0:
+            expected_index = 0  # BSN_1
+        elif expected_suffix == 1:
+            if num_blocks == 3:
+                expected_index = 2  # BSN_3
+            else:
+                expected_index = 1  # BSN_2
+        elif expected_suffix == 2:
+            if num_blocks == 3:
+                expected_index = 1  # BSN_2
+
+        if expected_index < num_blocks:
             return valid_blocks[expected_index]
 
         return None
