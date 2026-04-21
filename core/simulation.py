@@ -39,43 +39,16 @@ class Segment:
         if not self.next_block:
             return None
 
-        expected_suffix = int(self.next_block.split('_')[-1])
-
-        valid_blocks = []
+        # Extract expected branch_id from the end of the next_block string
+        expected_branch = int(self.next_block.split('_')[-1])
 
         for block in network.get_blocks():
-
             if {block.station_a, block.station_b} == {
                 self.start_station,
                 self.end_station,
             }:
-                valid_blocks.append(block)
-
-        if not valid_blocks:
-            return None
-
-        def get_block_y(b):
-            key = tuple(sorted([b.station_a, b.station_b])) + (b.branch_id,)
-            return layout.block_positions[key][1]
-
-        valid_blocks.sort(key=get_block_y)
-
-        num_blocks = len(valid_blocks)
-        expected_index = 0
-
-        if expected_suffix == 0:
-            expected_index = 0  # BSN_1
-        elif expected_suffix == 1:
-            if num_blocks == 3:
-                expected_index = 2  # BSN_3
-            else:
-                expected_index = 1  # BSN_2
-        elif expected_suffix == 2:
-            if num_blocks == 3:
-                expected_index = 1  # BSN_2
-
-        if expected_index < num_blocks:
-            return valid_blocks[expected_index]
+                if block.branch_id == expected_branch:
+                    return block
 
         return None
 

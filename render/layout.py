@@ -69,7 +69,15 @@ class Layout:
             num_blocks = len(blocks)
             self.block_counts[pair_key] = num_blocks
 
-            blocks.sort(key=lambda b: b.branch_id)
+            def get_visual_order(b):
+                if b.branch_id == 0:
+                    return 0
+                elif b.branch_id == 1:
+                    return float('inf')
+                else:
+                    return b.branch_id
+
+            blocks.sort(key=get_visual_order)
 
             # Since everything is centered on common_y
             start_y = common_y - (num_blocks - 1) * self.track_spacing / 2

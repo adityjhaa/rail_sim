@@ -37,8 +37,8 @@ height = screen.get_height()
 
 state = "HOME"
 
-network_path = ""
-schedule_path = ""
+network_path = os.path.abspath(os.path.join("input", "network.json"))
+schedule_path = os.path.abspath(os.path.join("input", "schedule.json"))
 
 network = None
 schedule = None
@@ -174,8 +174,8 @@ def init_sim():
 
 def clear_memory():
     global network_path, schedule_path, network, schedule, layout, simulation, renderer
-    network_path = ""
-    schedule_path = ""
+    network_path = os.path.abspath(os.path.join("input", "network.json"))
+    schedule_path = os.path.abspath(os.path.join("input", "schedule.json"))
     network = None
     schedule = None
     layout = None
