@@ -192,8 +192,8 @@
     "connections": {
       "sgdm_cpp_0_s1": 0,
       "sgdm_cpp_0_s2": 0,
-      "sgdm_cpp_0_s4": 0,
       "cpp_gvi_0_s1": 0,
+      "sgdm_cpp_0_s4": 0,
       "cpp_gvi_0_s2": 0,
       "cpp_gvi_0_s4": 0,
       "sgdm_cpp_1_s2": 1,
